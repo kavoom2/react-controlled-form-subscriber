@@ -4,6 +4,7 @@
   "repository": "https://github.com/kavoom2/react-subscribed-form.git",
   "author": "정진규 <kavoom2@gmail.com>",
   "license": "MIT",
+  "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.es.js",
   "browser": "./dist/index.umd.js",
@@ -50,6 +51,5 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
     "typescript": "^4.9.5"
-  },
-  "dependencies": {}
+  }
 }
