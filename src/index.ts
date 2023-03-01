@@ -1,2 +1,3 @@
 export { default as FormSubscriber } from "./FormSubscriber";
-export { default as useSubscribedForms } from "./useSubscribedForms";
+export { default as useSubscribedForm } from "./useSubscribedForm";
+
