@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import FormControlCore from "./core/FormControlCore";
 import useUpdate from "./hooks/useUpdate";
 import {
-    Comparators,
-    FieldName,
-    FieldValues,
-    FormListener,
-    Validators,
-    ValueProcessors
+  Comparators,
+  FieldName,
+  FieldValues,
+  FormListener,
+  Validators,
+  ValueProcessors,
 } from "./types";
 
 type FieldUpdateOptions = {
@@ -33,7 +33,7 @@ type FieldUpdateOptions = {
  * const defaultValueProcessors = { name: value => value.trim() };
  * const defaultComparators = { name: (prevValue, nextValue) => prevValue === nextValue };
  *
- * const { FormSubscriber, isValid, getFields, control } = useSubscribedForms(defaultFields, defaultValidators, defaultValueProcessors, defaultComparators);
+ * const { FormSubscriber, isValid, getFields, control } = useSubscribedForm(defaultFields, defaultValidators, defaultValueProcessors, defaultComparators);
  *
  * const onSubmit = () => {
  *  if (!isValid) return;
@@ -60,8 +60,7 @@ type FieldUpdateOptions = {
  *  </form>
  * )
  */
-const useSubscribedForms = <
-TFieldValues extends FieldValues>(
+const useSubscribedForm = <TFieldValues extends FieldValues>(
   defaultFields: TFieldValues,
   defaultValidators?: Validators<TFieldValues>,
   defaultValueProcessors?: ValueProcessors<TFieldValues>,
@@ -102,7 +101,9 @@ TFieldValues extends FieldValues>(
     () => ({
       onChange:
         <TFieldName extends FieldName<TFieldValues>>(fieldName: TFieldName) =>
-        (nextRawValue: Parameters<typeof formControlCore['updateField']>[1]) => {
+        (
+          nextRawValue: Parameters<typeof formControlCore["updateField"]>[1]
+        ) => {
           formControlCore.updateField(fieldName, nextRawValue, true);
         },
       onTouched:
@@ -230,4 +231,4 @@ TFieldValues extends FieldValues>(
   };
 };
 
-export default useSubscribedForms;
+export default useSubscribedForm;
