@@ -1,7 +1,7 @@
 import { storiesOf } from "@storybook/react";
 import * as React from "react";
 import FormSubscriber from "../FormSubscriber";
-import useSubscribedForms from "../useSubscribedForms";
+import useSubscribedForm from "../useSubscribedForm";
 
 const getDefaultFields = () => ({
   name: "",
@@ -48,7 +48,7 @@ const comparators = {
 
 const Demo = () => {
   const { control, isValid, isTouched, isDirty, getFields, reset } =
-    useSubscribedForms(fields, validators, valueProcessors, comparators);
+    useSubscribedForm(fields, validators, valueProcessors, comparators);
 
   const onSubmit = (event: React.SyntheticEvent) => {
     event.preventDefault();
@@ -130,4 +130,4 @@ const Demo = () => {
   );
 };
 
-storiesOf("State/useSubscribedForms", module).add("Demo", () => <Demo />);
+storiesOf("State/useSubscribedForm", module).add("Demo", () => <Demo />);
