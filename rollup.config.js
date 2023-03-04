@@ -5,8 +5,12 @@ import typescript from "@rollup/plugin-typescript";
 import { readFileSync } from "fs";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 
-const pkg = JSON.parse(readFileSync('package.json', {encoding: 'utf8'}));
+const pkg = JSON.parse(readFileSync("package.json", { encoding: "utf8" }));
 const extensions = ["js", "jsx", "ts", "tsx", "mjs"];
+
+/**
+ * @type {import('rollup').RollupOptions}
+ */
 const config = [
   {
     external: [/node_modules/],
@@ -30,14 +34,15 @@ const config = [
     ],
     plugins: [
       nodeResolve({ extensions }),
+      commonjs({ include: "node_modules/**" }),
+      peerDepsExternal(),
+      typescript({ tsconfig: "./tsconfig.json" }),
       babel({
+        babelHelpers: 'bundled',
         exclude: "node_modules/**",
         extensions,
         include: ["src/**/*"],
       }),
-      commonjs({ include: "node_modules/**" }),
-      peerDepsExternal(),
-      typescript({ tsconfig: "./tsconfig.json" }),
     ],
   },
 ];

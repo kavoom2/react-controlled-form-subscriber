@@ -1,14 +1,17 @@
 {
-  "name": "react-subscribed-form",
-  "version": "1.0.1",
-  "repository": "https://github.com/kavoom2/react-subscribed-form.git",
+  "name": "react-controlled-form-subscriber",
+  "version": "0.0.1",
+  "repository": "https://github.com/kavoom2/react-controlled-form-subscriber.git",
   "author": "정진규 <kavoom2@gmail.com>",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.es.js",
-  "browser": "./dist/index.umd.js",
-  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "browser": "dist/index.umd.js",
+  "types": "dist/index.d.ts",
   "private": false,
   "scripts": {
     "build": "rollup -c",
