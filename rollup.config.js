@@ -25,7 +25,7 @@ const plugins = [
   peerDepsExternal(),
   resolve(),
   commonjs(),
-  typescript({ tsconfig: "./tsconfig.json", sourceMap:  }),
+  typescript({ tsconfig: "./tsconfig.json", sourceMap: true }),
   terser(),
 ];
 
