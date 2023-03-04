@@ -21,6 +21,7 @@ const packageJSON = JSON.parse(
 const config = [
   {
     input: "src/index.ts",
+    external: [/node_modules/],
     output: [
       {
         file: packageJSON.main,
@@ -47,7 +48,7 @@ const config = [
   {
     input: "dist/esm/types/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "esm" }],
-    plugins: [dts()],
+    plugins: [dts.default()],
   },
 ];
 

@@ -1,6 +1,6 @@
 {
   "name": "react-controlled-form-subscriber",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "https://github.com/kavoom2/react-controlled-form-subscriber.git",
   "keywords": [
     "react",
@@ -10,7 +10,6 @@
   ],
   "author": "정진규 <kavoom2@gmail.com>",
   "license": "MIT",
-  "type": "module",
   "files": [
     "dist"
   ],
@@ -19,7 +18,7 @@
   "types": "dist/index.d.ts",
   "private": false,
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup -c --bundleConfigAsCjs",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
