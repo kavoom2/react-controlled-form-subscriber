@@ -3,8 +3,11 @@ import resolve from "@rollup/plugin-node-resolve";
 import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import { readFileSync } from "fs";
+import bundleSize from "rollup-plugin-bundle-size";
 import dts from "rollup-plugin-dts";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
+
+const enableBundleAnalyzer = process.env.bundleAnalyzer === "TRUE";
 
 /**
  * @see https://rollupjs.org/introduction/#quick-start - Quick start의 rollup-starter-lib 참조
@@ -16,7 +19,20 @@ const packageJSON = JSON.parse(
 );
 
 /**
- * @type {import 'rollup'.RollupOptions[]}
+ * @type {import('rollup').RollupOptions['plugins']}
+ */
+const plugins = [
+  peerDepsExternal(),
+  resolve(),
+  commonjs(),
+  typescript({ tsconfig: "./tsconfig.json", sourceMap:  }),
+  terser(),
+];
+
+if (enableBundleAnalyzer) plugins.push(bundleSize());
+
+/**
+ * @type {import('rollup').RollupOptions[]}
  */
 const config = [
   {
@@ -34,13 +50,7 @@ const config = [
         sourcemap: true,
       },
     ],
-    plugins: [
-      peerDepsExternal(),
-      resolve(),
-      commonjs(),
-      typescript({ tsconfig: "./tsconfig.json" }),
-      terser(),
-    ],
+    plugins,
   },
   /**
    * @see https://stackoverflow.com/a/75021330/14980971 dts plugin issue

@@ -19,6 +19,8 @@
   "private": false,
   "scripts": {
     "build": "rollup -c --bundleConfigAsCjs",
+    "build:watch": "rollup -c --watch --bundleConfigAsCjs",
+    "build:bundleAnalyzer": "bundleAnalyzer=TRUE rollup -c --bundleConfigAsCjs",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
@@ -56,6 +58,7 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "rollup": "^3.17.3",
+    "rollup-plugin-bundle-size": "^1.0.3",
     "rollup-plugin-dts": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "tslib": "^2.5.0",
