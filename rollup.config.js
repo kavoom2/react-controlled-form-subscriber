@@ -1,49 +1,53 @@
-import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
+import resolve from "@rollup/plugin-node-resolve";
+import terser from "@rollup/plugin-terser";
 import typescript from "@rollup/plugin-typescript";
 import { readFileSync } from "fs";
+import dts from "rollup-plugin-dts";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 
-const pkg = JSON.parse(readFileSync("package.json", { encoding: "utf8" }));
-const extensions = ["js", "jsx", "ts", "tsx", "mjs"];
+/**
+ * @see https://rollupjs.org/introduction/#quick-start - Quick start의 rollup-starter-lib 참조
+ * @see https://javascript.plainenglish.io/tutorial-create-your-own-component-library-with-react-and-rollup-b8978d885297
+ * @see https://dev.to/nasheomirro/comment/239nj Handling major issues
+ */
+const packageJSON = JSON.parse(
+  readFileSync("package.json", { encoding: "utf8" })
+);
 
 /**
- * @type {import('rollup').RollupOptions}
+ * @type {import 'rollup'.RollupOptions[]}
  */
 const config = [
   {
-    external: [/node_modules/],
-    input: "./src/index.ts",
+    input: "src/index.ts",
     output: [
       {
-        dir: "./dist",
+        file: packageJSON.main,
         format: "cjs",
-        preserveModules: true,
-        preserveModulesRoot: "src",
+        sourcemap: true,
       },
       {
-        file: pkg.module,
-        format: "es",
-      },
-      {
-        name: pkg.name,
-        file: pkg.browser,
-        format: "umd",
+        file: packageJSON.module,
+        format: "esm",
+        sourcemap: true,
       },
     ],
     plugins: [
-      nodeResolve({ extensions }),
-      commonjs({ include: "node_modules/**" }),
       peerDepsExternal(),
+      resolve(),
+      commonjs(),
       typescript({ tsconfig: "./tsconfig.json" }),
-      babel({
-        babelHelpers: 'bundled',
-        exclude: "node_modules/**",
-        extensions,
-        include: ["src/**/*"],
-      }),
+      terser(),
     ],
+  },
+  /**
+   * @see https://stackoverflow.com/a/75021330/14980971 dts plugin issue
+   */
+  {
+    input: "dist/esm/types/index.d.ts",
+    output: [{ file: "dist/index.d.ts", format: "esm" }],
+    plugins: [dts()],
   },
 ];
 

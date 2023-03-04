@@ -2,15 +2,23 @@
   "name": "react-controlled-form-subscriber",
   "version": "0.0.1",
   "repository": "https://github.com/kavoom2/react-controlled-form-subscriber.git",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@kavoom2"
+  },
+  "keywords": [
+    "react",
+    "react component",
+    "react hooks",
+    "react form"
+  ],
   "author": "정진규 <kavoom2@gmail.com>",
   "license": "MIT",
   "type": "module",
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
-  "module": "dist/index.es.js",
-  "browser": "dist/index.umd.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
   "types": "dist/index.d.ts",
   "private": false,
   "scripts": {
@@ -27,7 +35,8 @@
     "@rollup/plugin-babel": "^6.0.3",
     "@rollup/plugin-commonjs": "^24.0.1",
     "@rollup/plugin-node-resolve": "^15.0.1",
-    "@rollup/plugin-typescript": "^11.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "8.3.3",
     "@storybook/addon-actions": "^6.5.16",
     "@storybook/addon-essentials": "^6.5.16",
     "@storybook/addon-interactions": "^6.5.16",
@@ -51,8 +60,9 @@
     "react": "^16.8.0",
     "react-dom": "^16.8.0",
     "rollup": "^3.17.3",
+    "rollup-plugin-dts": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.2",
+    "tslib": "^2.5.0",
     "typescript": "^4.9.5"
   }
 }
