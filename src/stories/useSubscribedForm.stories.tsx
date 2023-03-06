@@ -64,68 +64,105 @@ const Demo = () => {
 
   return (
     <form onSubmit={onSubmit}>
-      <div>Validation result: {isValid ? "TRUE" : "FALSE"}</div>
-      <div>Has touched before: {isTouched ? "TRUE" : "FALSE"}</div>
-      <div>Has edited before: {isDirty ? "TRUE" : "FALSE"}</div>
+      <div className="form-global-state">
+        <div>Form validation result: {`${isValid}`}</div>
+        <div>Has touched before: {`${isTouched}`}</div>
+        <div>Has edited before: {`${isDirty}`}</div>
+      </div>
 
-      <FormSubscriber control={control} fieldName="name">
-        {({ register, onTouched }) => {
-          return (
-            <input
-              type="text"
-              onFocus={onTouched}
-              {...register()}
-              placeholder="Name"
-            />
-          );
-        }}
-      </FormSubscriber>
+      <div className="form-fields">
+        <FormSubscriber control={control} fieldName="name">
+          {({ register, onTouched, isTouched, isDirty, error }) => {
+            return (
+              <div className="field-name" style={{ marginTop: "12px" }}>
+                <input
+                  type="text"
+                  onFocus={onTouched}
+                  {...register()}
+                  placeholder="Name"
+                />
+
+                <div>- touched: {`${isTouched}`}</div>
+
+                <div>- edited: {`${isDirty}`}</div>
+
+                <div>- error: {`${error}`}</div>
+              </div>
+            );
+          }}
+        </FormSubscriber>
+      </div>
 
       <FormSubscriber control={control} fieldName="age">
-        {({ register, onTouched }) => {
+        {({ register, onTouched, isTouched, isDirty, error }) => {
           return (
-            <input
-              type="number"
-              onFocus={onTouched}
-              {...register()}
-              placeholder="Age"
-            />
+            <div className="field-name" style={{ marginTop: "8px" }}>
+              <input
+                type="number"
+                onFocus={onTouched}
+                {...register()}
+                placeholder="Age"
+              />
+
+              <div>- touched: {`${isTouched}`}</div>
+
+              <div>- edited: {`${isDirty}`}</div>
+
+              <div>- error: {`${error}`}</div>
+            </div>
           );
         }}
       </FormSubscriber>
 
       <FormSubscriber control={control} fieldName="email">
-        {({ register, onTouched }) => {
+        {({ register, onTouched, isTouched, isDirty, error }) => {
           return (
-            <input
-              type="text"
-              onFocus={onTouched}
-              {...register()}
-              placeholder="Email"
-            />
+            <div className="field-name" style={{ marginTop: "8px" }}>
+              <input
+                type="text"
+                onFocus={onTouched}
+                {...register()}
+                placeholder="Email"
+              />
+
+              <div>- touched: {`${isTouched}`}</div>
+
+              <div>- edited: {`${isDirty}`}</div>
+
+              <div>- error: {`${error}`}</div>
+            </div>
           );
         }}
       </FormSubscriber>
 
       <FormSubscriber control={control} fieldName="password">
-        {({ register, onTouched }) => {
+        {({ register, onTouched, isTouched, isDirty, error }) => {
           return (
-            <input
-              type="password"
-              onFocus={onTouched}
-              {...register()}
-              placeholder="Password"
-            />
+            <div className="field-name" style={{ marginTop: "8px" }}>
+              <input
+                type="password"
+                onFocus={onTouched}
+                {...register()}
+                placeholder="Password"
+              />
+              <div>- touched: {`${isTouched}`}</div>
+
+              <div>- edited: {`${isDirty}`}</div>
+
+              <div>- error: {`${error}`}</div>
+            </div>
           );
         }}
       </FormSubscriber>
 
-      <button type="submit" onClick={onSubmit}>
-        Submit
-      </button>
-      <button type="button" onClick={onReset}>
-        Reset
-      </button>
+      <div className="field-footer" style={{ marginTop: "16px" }}>
+        <button type="submit" onClick={onSubmit}>
+          Submit
+        </button>
+        <button type="button" onClick={onReset}>
+          Reset
+        </button>
+      </div>
     </form>
   );
 };

@@ -3,3 +3,4 @@ rollup.config.js
 tsconfig.json
 yarn.lock
 .storybooks
+docs
