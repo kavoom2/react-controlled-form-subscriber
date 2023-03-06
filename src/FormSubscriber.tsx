@@ -1,21 +1,27 @@
-import { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import FormControlCore from "./core/FormControlCore";
 import useUpdate from "./hooks/useUpdate";
+import useUpdateWithId from "./hooks/useUpdateWithId";
 import {
-    Comparators,
-    FieldError,
-    FieldName,
-    FieldValues,
-    FormListener,
-    SafeValueProcessorParam,
-    Validators,
-    ValueProcessors,
+  Comparators,
+  FieldError,
+  FieldName,
+  FieldValues,
+  FormListener,
+  SafeValueProcessorParam,
+  Validators,
+  ValueProcessors,
+  WacthedFieldValues,
+  WatchedFieldNames,
 } from "./types";
+
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 export interface FormSubscriberChildProps<
   TFieldValues extends FieldValues,
   TValueProcessors extends ValueProcessors<TFieldValues>,
-  TFieldName extends FieldName<TFieldValues>
+  TFieldName extends FieldName<TFieldValues>,
+  TWatchedFieldNames extends WatchedFieldNames<TFieldValues, TFieldName>
 > {
   value: TFieldValues[TFieldName];
   error: FieldError;
@@ -33,6 +39,11 @@ export interface FormSubscriberChildProps<
     ) => void;
     onBlur: () => void;
   };
+  watchedFields: WacthedFieldValues<
+    TFieldValues,
+    TFieldName,
+    TWatchedFieldNames
+  >;
 }
 
 export interface FormSubscriberProps<
@@ -40,7 +51,8 @@ export interface FormSubscriberProps<
   TFieldValidators extends Validators<TFieldValues>,
   TValueProcessors extends ValueProcessors<TFieldValues>,
   TComparators extends Comparators<TFieldValues>,
-  TFieldName extends FieldName<TFieldValues>
+  TFieldName extends FieldName<TFieldValues>,
+  TWatchedFieldNames extends WatchedFieldNames<TFieldValues, TFieldName>
 > {
   control: FormControlCore<
     TFieldValues,
@@ -49,9 +61,18 @@ export interface FormSubscriberProps<
     TComparators
   >;
   fieldName: TFieldName;
-  children: (
-    props: FormSubscriberChildProps<TFieldValues, TValueProcessors, TFieldName>
-  ) => JSX.Element;
+  watchedFieldNames?: TWatchedFieldNames;
+  children?:
+    | React.ReactNode
+    | ((
+        props: FormSubscriberChildProps<
+          TFieldValues,
+          TValueProcessors,
+          TFieldName,
+          TWatchedFieldNames
+        >
+      ) => React.ReactNode)
+    | undefined;
 }
 
 /**
@@ -94,20 +115,28 @@ const FormSubscriber = <
   TFieldValidators extends Validators<TFieldValues>,
   TValueProcessors extends ValueProcessors<TFieldValues>,
   TComparators extends Comparators<TFieldValues>,
-  TFieldName extends FieldName<TFieldValues>
+  TFieldName extends FieldName<TFieldValues>,
+  TWatchedFieldNames extends Exclude<
+    FieldName<TFieldValues>[],
+    TFieldName
+  > = WatchedFieldNames<TFieldValues, TFieldName>
 >({
   control,
   fieldName,
+  watchedFieldNames,
   children,
 }: FormSubscriberProps<
   TFieldValues,
   TFieldValidators,
   TValueProcessors,
   TComparators,
-  TFieldName
->): JSX.Element | null => {
+  TFieldName,
+  TWatchedFieldNames
+>) => {
   const update = useUpdate();
+  const [id, updateId] = useUpdateWithId();
 
+  // Effect: FieldName의 상태 변화를 구독합니다.
   useEffect(() => {
     if (!control) return;
 
@@ -128,6 +157,51 @@ const FormSubscriber = <
       unsubscribe();
     };
   }, [control, fieldName, update]);
+
+  // Effect: 해당 FieldName 이외의 다른 FieldName들의 값을 구독합니다.
+  useEffect(() => {
+    if (!control || !watchedFieldNames) return;
+    if (watchedFieldNames.length === 0) return;
+
+    if (isDevelopment) {
+      if (watchedFieldNames.includes(fieldName)) {
+        console.warn(
+          `FormSubscriber: watchedFieldNames에는 fieldName(${fieldName})을 제외한 필드 명만 사용할 수 있습니다.`
+        );
+      }
+    }
+
+    const listener: FormListener<TFieldValues> = (
+      prevFormState,
+      nextFormState
+    ) => {
+      let isEveryFieldsEqual = true;
+
+      for (let i = 0, iMax = watchedFieldNames.length - 1; i <= iMax; i++) {
+        const watchedFieldName = watchedFieldNames[i];
+        const comparator = control.getComparator(watchedFieldName);
+
+        if (
+          !comparator(
+            prevFormState["fields"][watchedFieldName],
+            nextFormState["fields"][watchedFieldName]
+          )
+        ) {
+          isEveryFieldsEqual = false;
+          break;
+        }
+      }
+
+      if (isEveryFieldsEqual) return;
+      updateId();
+    };
+
+    const unsubscribe = control.subscribe(listener);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [control, fieldName, updateId, ...(watchedFieldNames || [])]);
 
   const onChange = useCallback(
     (
@@ -157,6 +231,26 @@ const FormSubscriber = <
     onBlur,
   });
 
+  // 동일 참조를 보장하기 위해 updateID를 비교합니다.
+  const watchedFields = useMemo(() => {
+    if (!control || !watchedFieldNames) return null;
+    if (watchedFieldNames.length === 0) return null;
+
+    let partialFields = {} as {
+      [WatchedFieldName in TWatchedFieldNames[number]]: TFieldValues[WatchedFieldName];
+    };
+
+    watchedFieldNames.forEach((watchedFieldName) => {
+      partialFields[watchedFieldName] = control.getField(watchedFieldName);
+    });
+
+    return partialFields;
+  }, [id, control, ...(watchedFieldNames || [])]) as WacthedFieldValues<
+    TFieldValues,
+    TFieldName,
+    TWatchedFieldNames
+  >;
+
   const props = {
     value,
     error,
@@ -166,9 +260,10 @@ const FormSubscriber = <
     onTouched,
     onBlur,
     register,
+    watchedFields,
   };
 
-  return typeof children === "function" ? children(props) : null;
+  return <>{typeof children === "function" ? children(props) : children}</>;
 };
 
 export default FormSubscriber;

@@ -8,6 +8,7 @@ const getDefaultFields = () => ({
   age: 0,
   email: "",
   password: "",
+  dummy: null,
 });
 
 const fields = getDefaultFields();
@@ -153,6 +154,20 @@ const Demo = () => {
             </div>
           );
         }}
+      </FormSubscriber>
+
+      <FormSubscriber
+        control={control}
+        fieldName="dummy"
+        watchedFieldNames={["email", "name", "password"]}
+      >
+        {({ watchedFields }) => (
+          <div className="field-previews" style={{ marginTop: "8px" }}>
+            <div>wacthed values - name: {`${watchedFields?.name}`}</div>
+            <div>wacthed values - email: {`${watchedFields?.email}`}</div>
+            <div>wacthed values - password: {`${watchedFields.password}`}</div>
+          </div>
+        )}
       </FormSubscriber>
 
       <div className="field-footer" style={{ marginTop: "16px" }}>

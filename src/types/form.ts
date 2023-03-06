@@ -23,3 +23,11 @@ export type FormListener<TFieldValues extends FieldValues> = (
   prevState: FormState<TFieldValues>,
   nextState: FormState<TFieldValues>
 ) => void;
+
+
+export type WatchedFieldNames<TFieldValues extends FieldValues, TFieldName extends FieldName<TFieldValues>> = Exclude<FieldName<TFieldValues>[], TFieldName>
+
+export type WacthedFieldValues<TFieldValues extends FieldValues, TFieldName extends FieldName<TFieldValues>, TWatchedFieldNames> = TWatchedFieldNames extends WatchedFieldNames<TFieldValues, TFieldName> ? {
+  [WatchedFieldName in TWatchedFieldNames[number]]: TFieldValues[WatchedFieldName];
+}
+: null
