@@ -50,14 +50,12 @@ const config = [
     external,
     output: [
       {
-        file: packageJSON.main,
+        file: `dist/index.cjs.js`,
         format: "cjs",
-        sourcemap: true,
       },
       {
-        file: packageJSON.module,
+        file: `dist/index.js`,
         format: "esm",
-        sourcemap: true,
       },
     ],
     plugins,
@@ -66,9 +64,9 @@ const config = [
    * @see https://stackoverflow.com/a/75021330/14980971 dts plugin issue
    */
   {
-    input: "./dist/esm/types/index.d.ts",
+    input: "./dist/types/index.d.ts",
     external,
-    output: [{ file: "dist/index.d.ts", format: "esm" }],
+    output: [{ file: `dist/index.d.ts`, format: "esm" }],
     plugins: [dts.default()],
   },
 ];
