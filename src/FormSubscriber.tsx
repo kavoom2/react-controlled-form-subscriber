@@ -116,8 +116,8 @@ const FormSubscriber = <
   TValueProcessors extends ValueProcessors<TFieldValues>,
   TComparators extends Comparators<TFieldValues>,
   TFieldName extends FieldName<TFieldValues>,
-  TWatchedFieldNames extends Exclude<
-    FieldName<TFieldValues>[],
+  TWatchedFieldNames extends WatchedFieldNames<
+    TFieldValues,
     TFieldName
   > = WatchedFieldNames<TFieldValues, TFieldName>
 >({
