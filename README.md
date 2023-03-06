@@ -3,7 +3,7 @@
     <img src="/docs/example-1.gif" alt="React controlled form subscriber demos" width="30%"/>
     <br/>
     <br/>
-    <a href="https://react-controlled-form-subscriber-i97e-81zbd66lo-kavoom2.vercel.app/">
+    <a href="https://react-controlled-form-subscriber.vercel.app/">
     <img src="https://img.shields.io/badge/demos-%F0%9F%9A%80-yellow">
     </a>
 </div>
