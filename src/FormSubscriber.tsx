@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import FormControlCore from "./core/FormControlCore";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicLayoutEffect";
 import useUpdate from "./hooks/useUpdate";
 import useUpdateWithId from "./hooks/useUpdateWithId";
 import {
@@ -8,6 +9,7 @@ import {
   FieldName,
   FieldValues,
   FormListener,
+  FormState,
   SafeValueProcessorParam,
   Validators,
   ValueProcessors,
@@ -134,74 +136,87 @@ const FormSubscriber = <
   TWatchedFieldNames
 >) => {
   const update = useUpdate();
-  const [id, updateId] = useUpdateWithId();
+  const [watchExecutionId, updateWatchExecutionId] = useUpdateWithId();
 
-  // Effect: FieldName의 상태 변화를 구독합니다.
-  useEffect(() => {
-    if (!control) return;
+  const stateRef = useRef<FormState<TFieldValues> | null>(null);
 
-    const listener: FormListener<TFieldValues> = (
-      prevFormState,
-      nextFormState
-    ) => {
-      if (control.isFieldStatesEqual(fieldName, prevFormState, nextFormState)) {
-        return;
-      }
+  // Effect: 폼의 상태 변화를 구독합니다.
+  useIsomorphicLayoutEffect(() => {
+    // stateRef를 초기화합니다.
+    if (control == null) return;
 
-      update();
-    };
-
-    const unsubscribe = control.subscribe(listener);
-
-    return () => {
-      unsubscribe();
-    };
-  }, [control, fieldName, update]);
-
-  // Effect: 해당 FieldName 이외의 다른 FieldName들의 값을 구독합니다.
-  useEffect(() => {
-    if (!control || !watchedFieldNames) return;
-    if (watchedFieldNames.length === 0) return;
-
-    if (isDevelopment) {
-      if (watchedFieldNames.includes(fieldName)) {
-        console.warn(
-          `FormSubscriber: watchedFieldNames에는 fieldName(${fieldName})을 제외한 필드 명만 사용할 수 있습니다.`
-        );
-      }
+    if (stateRef.current == null) {
+      stateRef.current = control.getState();
     }
 
     const listener: FormListener<TFieldValues> = (
-      prevFormState,
+      _prevFormState,
       nextFormState
     ) => {
-      let isEveryFieldsEqual = true;
+      const prevFormState = stateRef.current as FormState<TFieldValues>;
 
-      for (let i = 0, iMax = watchedFieldNames.length - 1; i <= iMax; i++) {
-        const watchedFieldName = watchedFieldNames[i];
-        const comparator = control.getComparator(watchedFieldName);
+      let shouldUpdateValue = false;
+      let shouldUpdateWatchedFields = false;
 
-        if (
-          !comparator(
-            prevFormState["fields"][watchedFieldName],
-            nextFormState["fields"][watchedFieldName]
-          )
-        ) {
-          isEveryFieldsEqual = false;
-          break;
+      // 현재 필드의 상태를 비교합니다.
+      if (
+        !control.isFieldStatesEqual(fieldName, prevFormState, nextFormState)
+      ) {
+        shouldUpdateValue = true;
+      }
+
+      // 현재 필드를 구독하는 필드의 상태를 비교합니다.
+      if (watchedFieldNames && watchedFieldNames.length > 0) {
+        for (let i = 0, iMax = watchedFieldNames.length - 1; i <= iMax; i++) {
+          const watchedFieldName = watchedFieldNames[i];
+          const comparator = control.getComparator(watchedFieldName);
+
+          if (
+            !comparator(
+              prevFormState["fields"][watchedFieldName],
+              nextFormState["fields"][watchedFieldName]
+            )
+          ) {
+            shouldUpdateWatchedFields = true;
+            break;
+          }
         }
       }
 
-      if (isEveryFieldsEqual) return;
-      updateId();
+      if (!shouldUpdateValue && !shouldUpdateWatchedFields) {
+        return;
+      }
+
+      stateRef.current = nextFormState;
+
+      if (shouldUpdateWatchedFields) {
+        updateWatchExecutionId();
+      } else {
+        update();
+      }
     };
 
     const unsubscribe = control.subscribe(listener);
 
+    // 구독 실행 전에 사용자가 폼 상태를 업데이트하면 이를 반영해야 합니다.
+    listener(stateRef.current as FormState<TFieldValues>, control.getState());
+
     return () => {
       unsubscribe();
     };
-  }, [control, fieldName, updateId, ...(watchedFieldNames || [])]);
+  }, [
+    fieldName,
+    control,
+    update,
+    updateWatchExecutionId,
+    ...(watchedFieldNames || []),
+  ]);
+
+  // Effect: 리랜더링되면 stateRef를 업데이트합니다.
+  useIsomorphicLayoutEffect(() => {
+    if (control == null) return;
+    stateRef.current = control.getState();
+  });
 
   const onChange = useCallback(
     (
@@ -209,16 +224,16 @@ const FormSubscriber = <
     ) => {
       control.updateField(fieldName, nextRawValue, true);
     },
-    [control, fieldName]
+    [fieldName, control]
   );
 
   const onTouched = useCallback(() => {
     control.updateTouchedField(fieldName, true);
-  }, [control, fieldName]);
+  }, [fieldName, control]);
 
   const onBlur = useCallback(() => {
     control.updateTouchedField(fieldName, true);
-  }, [control, fieldName]);
+  }, [fieldName, control]);
 
   const value = control.getField(fieldName);
   const error = control.getError(fieldName);
@@ -245,11 +260,11 @@ const FormSubscriber = <
     });
 
     return partialFields;
-  }, [id, control, ...(watchedFieldNames || [])]) as WacthedFieldValues<
-    TFieldValues,
-    TFieldName,
-    TWatchedFieldNames
-  >;
+  }, [
+    watchExecutionId,
+    control,
+    ...(watchedFieldNames || []),
+  ]) as WacthedFieldValues<TFieldValues, TFieldName, TWatchedFieldNames>;
 
   const props = {
     value,

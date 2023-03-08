@@ -9,8 +9,6 @@ import bundleSize from "rollup-plugin-bundle-size";
 import dts from "rollup-plugin-dts";
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 
-const enableBundleAnalyzer = process.env.bundleAnalyzer === "TRUE";
-
 /**
  * @see https://rollupjs.org/introduction/#quick-start - Quick start의 rollup-starter-lib 참조
  * @see https://javascript.plainenglish.io/tutorial-create-your-own-component-library-with-react-and-rollup-b8978d885297
@@ -24,24 +22,6 @@ const root = process.platform === "win32" ? path.resolve("/") : "/";
 const external = (id) => !id.startsWith(".") && !id.startsWith(root);
 
 /**
- * @type {import('rollup').RollupOptions['plugins']}
- */
-const plugins = [
-  babel({
-    babelHelpers: "bundled",
-    exclude: "node_modules/**",
-    presets: ["@babel/preset-react"],
-  }),
-  peerDepsExternal(),
-  resolve(),
-  commonjs(),
-  typescript({ tsconfig: "./tsconfig.json", sourceMap: true }),
-  terser(),
-];
-
-if (enableBundleAnalyzer) plugins.push(bundleSize());
-
-/**
  * @type {import('rollup').RollupOptions[]}
  */
 const config = [
@@ -52,13 +32,27 @@ const config = [
       {
         file: `dist/index.cjs.js`,
         format: "cjs",
+        sourcemap: true,
       },
       {
         file: `dist/index.js`,
         format: "esm",
+        sourcemap: true,
       },
     ],
-    plugins,
+    plugins: [
+      babel({
+        babelHelpers: "bundled",
+        exclude: "node_modules/**",
+        presets: ["@babel/preset-react"],
+      }),
+      peerDepsExternal(),
+      resolve(),
+      commonjs(),
+      typescript({ tsconfig: "./tsconfig.json", sourceMap: true }),
+      terser(),
+      ...(process.env.bundleAnalyzer === "TRUE" ? [bundleSize()] : []),
+    ],
   },
   /**
    * @see https://stackoverflow.com/a/75021330/14980971 dts plugin issue

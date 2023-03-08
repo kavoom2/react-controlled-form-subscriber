@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import FormControlCore from "./core/FormControlCore";
+import useIsomorphicLayoutEffect from "./hooks/useIsomorphicLayoutEffect";
 import useUpdate from "./hooks/useUpdate";
 import {
   Comparators,
@@ -78,24 +79,38 @@ const useSubscribedForm = <TFieldValues extends FieldValues>(
       )
   );
 
-  useEffect(() => {
+  const stateRef = useRef(formControlCore.getState());
+
+  // Effect: 폼의 상태 변화를 구독합니다.
+  useIsomorphicLayoutEffect(() => {
     const listener: FormListener<TFieldValues> = (
-      prevFormState,
+      _prevFormState,
       nextFormState
     ) => {
+      const prevFormState = stateRef.current;
+
       if (formControlCore.isGlobalStatesEqual(prevFormState, nextFormState)) {
         return;
       }
 
+      stateRef.current = nextFormState;
       update();
     };
 
     const unsubscribe = formControlCore.subscribe(listener);
 
+    // 구독 실행 전에 사용자가 폼 상태를 업데이트하면 이를 반영해야 합니다.
+    listener(stateRef.current, formControlCore.getState());
+
     return () => {
       unsubscribe();
     };
   }, [formControlCore, update]);
+
+  // Effect: 리랜더링되면 stateRef를 업데이트합니다.
+  useIsomorphicLayoutEffect(() => {
+    stateRef.current = formControlCore.getState();
+  });
 
   const apis = useMemo(
     () => ({
@@ -154,69 +169,6 @@ const useSubscribedForm = <TFieldValues extends FieldValues>(
       },
       reset: <TFields extends TFieldValues>(maybeNextFields: TFields) => {
         formControlCore.reset(maybeNextFields);
-      },
-      subscribeFieldUpdate: <TFieldName extends FieldName<TFieldValues>>(
-        fieldName: TFieldName,
-        options: FieldUpdateOptions
-      ) => {
-        const listener: FormListener<TFieldValues> = (
-          prevFormState,
-          nextFormState
-        ) => {
-          const { field, error, touchedField, dirtyField } = {
-            field: true,
-            error: true,
-            touchedField: true,
-            dirtyField: true,
-            ...(options || null),
-          };
-
-          let shouldUpdate = false;
-
-          if (field && !shouldUpdate) {
-            const comparator = formControlCore.getComparator(fieldName);
-            shouldUpdate =
-              shouldUpdate ||
-              !comparator?.(
-                prevFormState.fields[fieldName],
-                nextFormState.fields[fieldName]
-              );
-          }
-
-          if (error && !shouldUpdate) {
-            const errorComparator = formControlCore.getErrorComparator();
-            shouldUpdate =
-              shouldUpdate ||
-              !errorComparator(
-                prevFormState.errors[fieldName],
-                nextFormState.errors[fieldName]
-              );
-          }
-
-          if (touchedField && !shouldUpdate) {
-            shouldUpdate =
-              shouldUpdate ||
-              prevFormState.touchedFields[fieldName] !==
-                nextFormState.touchedFields[fieldName];
-          }
-
-          if (dirtyField && !shouldUpdate) {
-            shouldUpdate =
-              shouldUpdate ||
-              prevFormState.dirtyFields[fieldName] !==
-                nextFormState.dirtyFields[fieldName];
-          }
-
-          if (shouldUpdate) {
-            update();
-          }
-        };
-
-        const unsubscribeFieldUpdate = formControlCore.subscribe(listener);
-
-        return () => {
-          unsubscribeFieldUpdate();
-        };
       },
     }),
     [formControlCore]

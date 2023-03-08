@@ -27,8 +27,11 @@ const valueProcessors = {
     return value.trim();
   },
   age: (event: React.SyntheticEvent) => {
-    const value = (event.target as HTMLInputElement).value;
-    return parseInt(value, 10);
+    const value = +(event.target as HTMLInputElement).value;
+
+    if (isNaN(value) || value < 0) return 0;
+
+    return +value.toFixed(0);
   },
   email: (event: React.SyntheticEvent) => {
     const value = (event.target as HTMLInputElement).value;
@@ -159,12 +162,14 @@ const Demo = () => {
       <FormSubscriber
         control={control}
         fieldName="dummy"
-        watchedFieldNames={["email", "name", "password"]}
+        watchedFieldNames={["email", "age", "name", "password"]}
       >
         {({ watchedFields }) => (
           <div className="field-previews" style={{ marginTop: "8px" }}>
-            <div>wacthed values - name: {`${watchedFields?.name}`}</div>
-            <div>wacthed values - email: {`${watchedFields?.email}`}</div>
+            <div>wacthed values - name: {`${watchedFields.name}`}</div>
+            <div>wacthed values - age: {`${watchedFields.age}`}</div>
+
+            <div>wacthed values - email: {`${watchedFields.email}`}</div>
             <div>wacthed values - password: {`${watchedFields.password}`}</div>
           </div>
         )}
