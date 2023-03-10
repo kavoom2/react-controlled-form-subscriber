@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import FormControlCore from "./core/FormControlCore";
 import useIsomorphicLayoutEffect from "./hooks/useIsomorphicLayoutEffect";
 import useUpdate from "./hooks/useUpdate";
-import useUpdateWithId from "./hooks/useUpdateWithId";
 import {
   Comparators,
   FieldError,
@@ -16,8 +15,6 @@ import {
   WacthedFieldValues,
   WatchedFieldNames,
 } from "./types";
-
-const isDevelopment = process.env.NODE_ENV !== "production";
 
 export interface FormSubscriberChildProps<
   TFieldValues extends FieldValues,
@@ -136,9 +133,9 @@ const FormSubscriber = <
   TWatchedFieldNames
 >) => {
   const update = useUpdate();
-  const [watchExecutionId, updateWatchExecutionId] = useUpdateWithId();
 
-  const stateRef = useRef<FormState<TFieldValues> | null>(null);
+  const state = control ? control.getState() : null;
+  const stateRef = useRef<FormState<TFieldValues> | null>(state);
 
   // Effect: 폼의 상태 변화를 구독합니다.
   useIsomorphicLayoutEffect(() => {
@@ -146,23 +143,24 @@ const FormSubscriber = <
     if (control == null) return;
 
     if (stateRef.current == null) {
-      stateRef.current = control.getState();
+      stateRef.current = state;
     }
 
     const listener: FormListener<TFieldValues> = (
-      _prevFormState,
+      _unusedPrevFormState,
       nextFormState
     ) => {
       const prevFormState = stateRef.current as FormState<TFieldValues>;
 
-      let shouldUpdateValue = false;
-      let shouldUpdateWatchedFields = false;
-
       // 현재 필드의 상태를 비교합니다.
       if (
+        fieldName &&
         !control.isFieldStatesEqual(fieldName, prevFormState, nextFormState)
       ) {
-        shouldUpdateValue = true;
+        stateRef.current = nextFormState;
+        update();
+
+        return;
       }
 
       // 현재 필드를 구독하는 필드의 상태를 비교합니다.
@@ -177,22 +175,12 @@ const FormSubscriber = <
               nextFormState["fields"][watchedFieldName]
             )
           ) {
-            shouldUpdateWatchedFields = true;
-            break;
+            stateRef.current = nextFormState;
+            update();
+
+            return;
           }
         }
-      }
-
-      if (!shouldUpdateValue && !shouldUpdateWatchedFields) {
-        return;
-      }
-
-      stateRef.current = nextFormState;
-
-      if (shouldUpdateWatchedFields) {
-        updateWatchExecutionId();
-      } else {
-        update();
       }
     };
 
@@ -204,18 +192,13 @@ const FormSubscriber = <
     return () => {
       unsubscribe();
     };
-  }, [
-    fieldName,
-    control,
-    update,
-    updateWatchExecutionId,
-    ...(watchedFieldNames || []),
-  ]);
+  }, [fieldName, control, update, ...(watchedFieldNames || [])]);
 
   // Effect: 리랜더링되면 stateRef를 업데이트합니다.
   useIsomorphicLayoutEffect(() => {
-    if (control == null) return;
-    stateRef.current = control.getState();
+    if (state != null) {
+      stateRef.current = state;
+    }
   });
 
   const onChange = useCallback(
@@ -246,25 +229,73 @@ const FormSubscriber = <
     onBlur,
   });
 
-  // 동일 참조를 보장하기 위해 updateID를 비교합니다.
-  const watchedFields = useMemo(() => {
-    if (!control || !watchedFieldNames) return null;
-    if (watchedFieldNames.length === 0) return null;
+  const watchedFieldsRef =
+    useRef<WacthedFieldValues<
+      TFieldValues,
+      TFieldName,
+      TWatchedFieldNames
+    > | null>(null);
 
+  const getNextWatchedFields = () => {
+    if (
+      !control ||
+      !stateRef.current ||
+      !state ||
+      !watchedFieldNames ||
+      watchedFieldNames?.length === 0
+    ) {
+      return null;
+    }
+
+    if (watchedFieldsRef.current) {
+      // 동일 참조를 보장하기 위해 모든 필드의 값이 동일하다면 이전 값을 반환합니다.
+      // watchedFields가 의도하지 않은 sideEffect를 유발하지 않도록 합니다.
+      let isEqual = true;
+      const prevWatchedFields = watchedFieldsRef.current;
+
+      for (let i = 0, iMax = watchedFieldNames.length - 1; i <= iMax; i++) {
+        const watchedFieldName = watchedFieldNames[i];
+        const comparator = control.getComparator(watchedFieldName);
+
+        if (
+          !comparator(
+            prevWatchedFields[watchedFieldName],
+            state["fields"][watchedFieldName]
+          )
+        ) {
+          isEqual = false;
+          break;
+        }
+      }
+
+      if (isEqual) {
+        return prevWatchedFields;
+      }
+    }
+
+    // 새로운 값을 반환합니다.
     let partialFields = {} as {
       [WatchedFieldName in TWatchedFieldNames[number]]: TFieldValues[WatchedFieldName];
     };
 
-    watchedFieldNames.forEach((watchedFieldName) => {
-      partialFields[watchedFieldName] = control.getField(watchedFieldName);
-    });
+    for (let i = 0, iMax = watchedFieldNames.length - 1; i <= iMax; i++) {
+      const watchedFieldName = watchedFieldNames[i];
+      partialFields[watchedFieldName] = state["fields"][watchedFieldName];
+    }
 
-    return partialFields;
-  }, [
-    watchExecutionId,
-    control,
-    ...(watchedFieldNames || []),
-  ]) as WacthedFieldValues<TFieldValues, TFieldName, TWatchedFieldNames>;
+    return partialFields as WacthedFieldValues<
+      TFieldValues,
+      TFieldName,
+      TWatchedFieldNames
+    >;
+  };
+
+  watchedFieldsRef.current = getNextWatchedFields();
+  const watchedFields = watchedFieldsRef.current as WacthedFieldValues<
+    TFieldValues,
+    TFieldName,
+    TWatchedFieldNames
+  >;
 
   const props = {
     value,

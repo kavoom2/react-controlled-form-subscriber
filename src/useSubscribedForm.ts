@@ -11,13 +11,6 @@ import {
   ValueProcessors,
 } from "./types";
 
-type FieldUpdateOptions = {
-  field?: boolean;
-  error?: boolean;
-  touchedField?: boolean;
-  dirtyField?: boolean;
-};
-
 /**
  *
  * @param defaultFields Field 별 초기값입니다.
@@ -79,12 +72,13 @@ const useSubscribedForm = <TFieldValues extends FieldValues>(
       )
   );
 
-  const stateRef = useRef(formControlCore.getState());
+  const state = formControlCore.getState();
+  const stateRef = useRef(state);
 
   // Effect: 폼의 상태 변화를 구독합니다.
   useIsomorphicLayoutEffect(() => {
     const listener: FormListener<TFieldValues> = (
-      _prevFormState,
+      _unusedPrevFormState,
       nextFormState
     ) => {
       const prevFormState = stateRef.current;
@@ -109,7 +103,7 @@ const useSubscribedForm = <TFieldValues extends FieldValues>(
 
   // Effect: 리랜더링되면 stateRef를 업데이트합니다.
   useIsomorphicLayoutEffect(() => {
-    stateRef.current = formControlCore.getState();
+    stateRef.current = state;
   });
 
   const apis = useMemo(

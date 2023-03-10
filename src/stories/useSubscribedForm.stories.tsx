@@ -162,15 +162,13 @@ const Demo = () => {
       <FormSubscriber
         control={control}
         fieldName="dummy"
-        watchedFieldNames={["email", "age", "name", "password"]}
+        watchedFieldNames={["email", "age", "name"]}
       >
         {({ watchedFields }) => (
           <div className="field-previews" style={{ marginTop: "8px" }}>
             <div>wacthed values - name: {`${watchedFields.name}`}</div>
             <div>wacthed values - age: {`${watchedFields.age}`}</div>
-
             <div>wacthed values - email: {`${watchedFields.email}`}</div>
-            <div>wacthed values - password: {`${watchedFields.password}`}</div>
           </div>
         )}
       </FormSubscriber>
