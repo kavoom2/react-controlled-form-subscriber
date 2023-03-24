@@ -129,40 +129,40 @@ const MyForm = () => {
 
 #### Arguments
 
-| Arguments name  | Type                                                                | Description                                                                                                                                          |
-| :-------------- | :------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
-| fields          | Record<string, unknown>                                             | 폼 필드 값들의 초기 상태를 정의합니다.                                                                                                               |
-| validators      | Record<string, (value: unknown) => string \| null>                  | 각 필드 별 유효성 검사 함수를 정의합니다.<br><br>정의되지 않은 필드에 대해서는 항상 null을 반환합니다.                                               |
-| valueProcessors | Record<string, (rawValue: unknown) => unknown>                      | FormSubscriber의 onChange에서 인자로 받은 값을 가공하여 필드의 값으로 할당합니다.<br><br>정의되지 않은 필드에 대해서는 rawValue를 그대로 사용합니다. |
-| comparators     | Record<string, (prevValue: unknown, nextValue: unknown) => boolean> | 해당 필드의 값을 비교하기 위해 사용합니다.<br><br>정의되지 않은 필드에 대해서는 prevValue === nextValue의 결과값을 사용합니다.                       |
+| Arguments name  | Type                                                                  | Description                                                                                                                                                |
+| :-------------- | :-------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| fields          | `Record<string, unknown>`                                             | 폼 필드 값들의 초기 상태를 정의합니다.                                                                                                                     |
+| validators      | `Record<string, (value: unknown) => string                            | null>`                                                                                                                                                     | 각 필드 별 유효성 검사 함수를 정의합니다.<br><br>정의되지 않은 필드에 대해서는 항상 `null`을 반환합니다. |
+| valueProcessors | `Record<string, (rawValue: unknown) => unknown>`                      | `FormSubscriber`의 `onChange`에서 인자로 받은 값을 가공하여 필드의 값으로 할당합니다.<br><br>정의되지 않은 필드에 대해서는 `rawValue`를 그대로 사용합니다. |
+| comparators     | `Record<string, (prevValue: unknown, nextValue: unknown) => boolean>` | 해당 필드의 값을 비교하기 위해 사용합니다.<br><br>정의되지 않은 필드에 대해서는 `prevValue === nextValue`의 결과값을 사용합니다.                           |
 
 #### Properties
 
-| Props name       | Type                                               | Description                                                                                                             |
-| :--------------- | :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
-| isValid          | boolean                                            | 폼의 유효성 검사 결과입니다.                                                                                            |
-| isTouched        | boolean                                            | 폼의 필드 요소가 사용자에 의해 선택 되었는지를 나타냅니다.                                                              |
-| isDirty          | boolean                                            | 폼의 필드 내용이 사용자에 의해 수정 되었는지 여부를 나타냅니다.                                                         |
-| control          | FormControlCore                                    | 폼을 관리하는 상태와 메서드가 담긴 Core 인스턴스입니다. FormSubscriber에게 전달하기 위해 사용합니다.                    |
-| onChange         | (fieldName: string) => (rawValue: unknown) => void | 필드 외부에서 onChange를 호출하기 위해 사용합니다.<br><br>(대부분의 경우는 FormSubscriber의 Props를 사용하면 됩니다.)   |
-| onTouched        | (fieldName: string) => () => void                  | 필드 외부에서 onFocus 등을 호출하기 위해 사용합니다.<br><br>(대부분의 경우는 FormSubscriber의 Props를 사용하면 됩니다.) |
-| getFields        | () => Record<string, unknown>                      | 현재 폼 Field들의 값을 반환합니다.                                                                                      |
-| getErrors        | () => Record<string, string \| null>               | 현재 폼 Field들의 오류를 반환합니다.<br>(어떤 필드 Property의 값이 null 또는 존재하지 않으면 유효한 필드입니다.)        |
-| getTouchedFields | () => Record<string, boolean>                      | 현재 폼 Field들의 Focus 상호작용 여부를 반환합니다.                                                                     |
-| getDirtyFields   | () => Record<string, boolean>                      | 현재 폼 Field들의 수정 여부를 반환합니다.                                                                               |
-| getField         | (fieldName: string) => unknown                     | 해당 Field의 값을 반환합니다.                                                                                           |
-| getError         | (fieldName: string) => string \| null              | 해당 Field의 오류 내용을 반환합니다.                                                                                    |
-| getTouchedField  | (fieldName: string) => boolean                     | 해당 Field의 Focus 상호작용 여부를 반환합니다.                                                                          |
-| getDirtyField    | (fieldName: string) => boolean                     | 해당 Field의 수정 여부를 반환합니다.                                                                                    |
-| reset            | (nextFields: Record<string, unknown>) => void      | 현재 폼 Field들의 값을 초기화합니다.                                                                                    |
+| Props name       | Type                                                 | Description                                                                                                                 |
+| :--------------- | :--------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| isValid          | `boolean`                                            | 폼의 유효성 검사 결과입니다.                                                                                                |
+| isTouched        | `boolean`                                            | 폼의 필드 요소가 사용자에 의해 선택 되었는지를 나타냅니다.                                                                  |
+| isDirty          | `boolean`                                            | 폼의 필드 내용이 사용자에 의해 수정 되었는지 여부를 나타냅니다.                                                             |
+| control          | `FormControlCore`                                    | 폼을 관리하는 상태와 메서드가 담긴 `Core instance`입니다. FormSubscriber에게 전달하기 위해 사용합니다.                      |
+| onChange         | `(fieldName: string) => (rawValue: unknown) => void` | 필드 외부에서 `onChange`를 호출하기 위해 사용합니다.<br><br>(대부분의 경우는 `FormSubscriber`의 Props를 사용하면 됩니다.)   |
+| onTouched        | `(fieldName: string) => () => void`                  | 필드 외부에서 `onFocus` 등을 호출하기 위해 사용합니다.<br><br>(대부분의 경우는 `FormSubscriber`의 Props를 사용하면 됩니다.) |
+| getFields        | `() => Record<string, unknown>`                      | 현재 폼 Field들의 값을 반환합니다.                                                                                          |
+| getErrors        | `() => Record<string, string                         | null>`                                                                                                                      | 현재 폼 Field들의 오류를 반환합니다.<br>(어떤 필드 Property의 값이 `null` 또는 존재하지 않으면 유효한 필드입니다.) |
+| getTouchedFields | `() => Record<string, boolean>`                      | 현재 폼 Field들의 Focus 상호작용 여부를 반환합니다.                                                                         |
+| getDirtyFields   | `() => Record<string, boolean>`                      | 현재 폼 Field들의 수정 여부를 반환합니다.                                                                                   |
+| getField         | `(fieldName: string) => unknown`                     | 해당 Field의 값을 반환합니다.                                                                                               |
+| getError         | `(fieldName: string) => string                       | null`                                                                                                                       | 해당 Field의 오류 내용을 반환합니다.                                                                               |
+| getTouchedField  | `(fieldName: string) => boolean`                     | 해당 Field의 Focus 상호작용 여부를 반환합니다.                                                                              |
+| getDirtyField    | `(fieldName: string) => boolean`                     | 해당 Field의 수정 여부를 반환합니다.                                                                                        |
+| reset            | `(nextFields: Record<string, unknown>) => void`      | 현재 폼 Field들의 값을 초기화합니다.                                                                                        |
 
 ### FormSubscriber
 
 #### Properties
 
-| Props name    | Type                                           | Description                                                                                |
-| :------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------- |
-| control       | FormControlCore                                | 폼을 관리하는 상태와 메서드가 담긴 Core 인스턴스입니다. useSubscribedForm 에서 제공합니다. |
-| fieldName     | string                                         | Subscriber가 폼 상태에서 구독할 Field의 이름입니다.                                        |
-| children      | (props: FormSubscriberChildProps) => ReactNode | 필드의 상태와 관련 메소드를 Props로 받아 구성 요소를 렌더링합니다.                         |
-| watchedFields | string[]                                       | 현재 필드 외의 다른 필드 값의 변경을 구독합니다.                                           |
+| Props name    | Type                                             | Description                                                                                    |
+| :------------ | :----------------------------------------------- | :--------------------------------------------------------------------------------------------- |
+| control       | `FormControlCore`                                | 폼을 관리하는 상태와 메서드가 담긴 `Core instance`입니다. `useSubscribedForm` 에서 제공합니다. |
+| fieldName     | `string`                                         | `FormSubscriber`가 폼 상태에서 구독할 Field의 이름입니다.                                      |
+| children      | `(props: FormSubscriberChildProps) => ReactNode` | 필드의 상태와 관련 메소드를 Props로 받아 구성 요소를 렌더링합니다.                             |
+| watchedFields | `string[]`                                       | 현재 필드 외의 다른 필드 값의 변경을 구독합니다.                                               |
