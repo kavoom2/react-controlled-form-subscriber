@@ -9,7 +9,7 @@
     <br/>
 </div>
 
-### 1. Introduction
+## Introduction
 
 <div>
     <img src="/docs/example-1.gif" alt="React controlled form subscriber demos" width="50%"/>
@@ -20,13 +20,15 @@
 - FormSubscriber로 해당 필드의 상태만을 구독하여, 폼 상태 관리에서 불필요한 리렌더링을 최소화합니다.
 - 유효성 검사, 수정 여부 등 간단한 폼 관련 상태 및 유틸 함수 기능을 제공합니다.
 
-### 2. Install
+## Install
 
 ```
 npm install react-controlled-form-subscriber
 ```
 
-### 3. Usage
+## Getting started
+
+### Basic usage
 
 ```js
 import {
@@ -121,11 +123,11 @@ const MyForm = () => {
 };
 ```
 
-### 4. API
+## API
 
-#### 4.1. useSubscribedForm
+### useSubscribedForm
 
-##### 4.1.1. Arguments
+#### Arguments
 
 | Arguments name  | Type                                                                | Description                                                                                                                                          |
 | :-------------- | :------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -134,7 +136,7 @@ const MyForm = () => {
 | valueProcessors | Record<string, (rawValue: unknown) => unknown>                      | FormSubscriber의 onChange에서 인자로 받은 값을 가공하여 필드의 값으로 할당합니다.<br><br>정의되지 않은 필드에 대해서는 rawValue를 그대로 사용합니다. |
 | comparators     | Record<string, (prevValue: unknown, nextValue: unknown) => boolean> | 해당 필드의 값을 비교하기 위해 사용합니다.<br><br>정의되지 않은 필드에 대해서는 prevValue === nextValue의 결과값을 사용합니다.                       |
 
-##### 4.1.2. Properties
+#### Properties
 
 | Props name       | Type                                               | Description                                                                                                             |
 | :--------------- | :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
@@ -154,9 +156,9 @@ const MyForm = () => {
 | getDirtyField    | (fieldName: string) => boolean                     | 해당 Field의 수정 여부를 반환합니다.                                                                                    |
 | reset            | (nextFields: Record<string, unknown>) => void      | 현재 폼 Field들의 값을 초기화합니다.                                                                                    |
 
-#### 4.2. FormSubscriber
+### FormSubscriber
 
-##### 4.2.1. Properties
+#### Properties
 
 | Props name    | Type                                           | Description                                                                                |
 | :------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------- |
