@@ -1,29 +1,32 @@
 <div align="center">
-    <h1>📝 react-controlled-form-subscriber</h1>
-    <img src="/docs/example-1.gif" alt="React controlled form subscriber demos" width="30%"/>
     <br/>
-    <br/>
+    <img src="/docs/logo.png" width='80px'/>
+    <h1>React Controlled Form Subscriber</h1>
     <a href="https://react-controlled-form-subscriber.vercel.app/">
     <img src="https://img.shields.io/badge/demos-%F0%9F%9A%80-yellow">
     </a>
+    <br/>
+    <br/>
 </div>
 
----
+### 1. Introduction
 
-### Introduction
+<div>
+    <img src="/docs/example-1.gif" alt="React controlled form subscriber demos" width="50%"/>
+</div>
 
-[react-hook-form](https://github.com/react-hook-form/react-hook-form)의 [Controller](https://react-hook-form.com/api/usecontroller/controller/)를 모방한 제어 컴포넌트 방식의 폼 관리 Hook과 Component입니다.
+[React Hook Form](https://github.com/react-hook-form/react-hook-form)의 [Controller](https://react-hook-form.com/api/usecontroller/controller/)를 모방한 제어 컴포넌트 방식의 폼 관리 Hook과 Component입니다.
 
 - FormSubscriber로 해당 필드의 상태만을 구독하여, 폼 상태 관리에서 불필요한 리렌더링을 최소화합니다.
 - 유효성 검사, 수정 여부 등 간단한 폼 관련 상태 및 유틸 함수 기능을 제공합니다.
 
-### Install
+### 2. Install
 
 ```
 npm install react-controlled-form-subscriber
 ```
 
-### Usage
+### 3. Usage
 
 ```js
 import {
@@ -118,11 +121,11 @@ const MyForm = () => {
 };
 ```
 
-### API
+### 4. API
 
-#### useSubscribedForm
+#### 4.1. useSubscribedForm
 
-##### Arguments
+##### 4.1.1. Arguments
 
 | Arguments name  | Type                                                                | Description                                                                                                                                          |
 | :-------------- | :------------------------------------------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -131,7 +134,7 @@ const MyForm = () => {
 | valueProcessors | Record<string, (rawValue: unknown) => unknown>                      | FormSubscriber의 onChange에서 인자로 받은 값을 가공하여 필드의 값으로 할당합니다.<br><br>정의되지 않은 필드에 대해서는 rawValue를 그대로 사용합니다. |
 | comparators     | Record<string, (prevValue: unknown, nextValue: unknown) => boolean> | 해당 필드의 값을 비교하기 위해 사용합니다.<br><br>정의되지 않은 필드에 대해서는 prevValue === nextValue의 결과값을 사용합니다.                       |
 
-##### Properties
+##### 4.1.2. Properties
 
 | Props name       | Type                                               | Description                                                                                                             |
 | :--------------- | :------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
@@ -151,9 +154,9 @@ const MyForm = () => {
 | getDirtyField    | (fieldName: string) => boolean                     | 해당 Field의 수정 여부를 반환합니다.                                                                                    |
 | reset            | (nextFields: Record<string, unknown>) => void      | 현재 폼 Field들의 값을 초기화합니다.                                                                                    |
 
-#### FormSubscriber
+#### 4.2. FormSubscriber
 
-##### Properties
+##### 4.2.1. Properties
 
 | Props name    | Type                                           | Description                                                                                |
 | :------------ | :--------------------------------------------- | :----------------------------------------------------------------------------------------- |
