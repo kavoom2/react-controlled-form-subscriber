@@ -17,7 +17,7 @@ import {
 } from "../types";
 
 function isEqualError(prevError: FieldError, nextError: FieldError) {
-  if (prevError == null && nextError == null) return true;
+  if (prevError === undefined || nextError === undefined) return false;
   return prevError === nextError;
 }
 
@@ -64,8 +64,14 @@ class FormControlCore<
     this.validators = Object.assign({}, validators || null);
     this.valueProcessors = Object.assign({}, valueProcessors || null);
     this.comparators = Object.assign({}, comparators || null);
-    this.dirtyFields = {};
-    this.touchedFields = {};
+    this.dirtyFields = Object.keys(this.fields).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
+    this.touchedFields = Object.keys(this.fields).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
 
     this.isValid = false;
     this.isDirty = false;
@@ -110,8 +116,14 @@ class FormControlCore<
 
     this.fields = Object.assign({}, nextFields || null);
     this.errors = {};
-    this.dirtyFields = {};
-    this.touchedFields = {};
+    this.dirtyFields = Object.keys(nextFields).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
+    this.touchedFields = Object.keys(nextFields).reduce(
+      (acc, key) => ({ ...acc, [key]: false }),
+      {}
+    );
 
     this.isValid = false;
     this.isDirty = false;
@@ -187,11 +199,11 @@ class FormControlCore<
   ) {
     if (this.valueProcessors[fieldName]) {
       return this.valueProcessors[fieldName] as NonNullable<
-      TValueProcessors[TFieldName]
-    >;
+        TValueProcessors[TFieldName]
+      >;
     }
 
-    return defaultValueProcessor as ValueProcessor<TFieldValues, TFieldName>
+    return defaultValueProcessor as ValueProcessor<TFieldValues, TFieldName>;
   }
 
   public getValidator<TFieldName extends FieldName<TFieldValues>>(
@@ -225,13 +237,14 @@ class FormControlCore<
   public getField<TFieldName extends FieldName<TFieldValues>>(
     fieldName: TFieldName
   ) {
-    return (this.fields[fieldName] ?? this.getValueProcessor(fieldName)(null)) as TFieldValues[TFieldName];
+    return (this.fields[fieldName] ??
+      this.getValueProcessor(fieldName)(null)) as TFieldValues[TFieldName];
   }
 
   public getError<TFieldName extends FieldName<TFieldValues>>(
     fieldName: TFieldName
   ) {
-    return this.errors[fieldName] || null;
+    return this.errors[fieldName];
   }
 
   public getDirtyField<TFieldName extends FieldName<TFieldValues>>(
@@ -288,7 +301,7 @@ class FormControlCore<
 
   public updateTouchedField<TFieldName extends FieldName<TFieldValues>>(
     fieldName: TFieldName,
-    notifyFlag: boolean = false
+    notifyFlag?: boolean
   ) {
     const prevTouched = this.getTouchedField(fieldName);
 
@@ -306,7 +319,7 @@ class FormControlCore<
 
   public updateDirtyField<TFieldName extends FieldName<TFieldValues>>(
     fieldName: TFieldName,
-    notifyFlag: boolean = false
+    notifyFlag?: boolean
   ) {
     const prevDirty = this.getDirtyField(fieldName);
 
@@ -327,11 +340,7 @@ class FormControlCore<
   public updateError<
     TFieldName extends FieldName<TFieldValues>,
     TNextFieldValue extends TFieldValues[TFieldName]
-  >(
-    fieldName: TFieldName,
-    nextValue: TNextFieldValue,
-    notifyFlag: boolean = false
-  ) {
+  >(fieldName: TFieldName, nextValue: TNextFieldValue, notifyFlag?: boolean) {
     const prevError = this.getError(fieldName);
     const nextError = this.getNextError(fieldName, nextValue);
 
@@ -351,7 +360,7 @@ class FormControlCore<
   public updateField<TFieldName extends FieldName<TFieldValues>>(
     fieldName: TFieldName,
     nextRawValue: SafeValueProcessorParam<TValueProcessors[TFieldName], any>,
-    notifyFlag: boolean
+    notifyFlag?: boolean
   ) {
     const prevValue = this.getField(fieldName);
     const nextValue = this.getNextField(
@@ -376,16 +385,14 @@ class FormControlCore<
     }
   }
 
-  public updateErrors(notifyFlag: boolean = false) {
+  public updateErrors(notifyFlag?: boolean) {
     const maybeNextErrors = [] as {
       fieldName: FieldName<TFieldValues>;
       value: FieldError;
     }[];
     let hasToUpdate = false;
 
-    const fieldNames = Object.keys(
-      this.validators
-    ) as FieldName<TFieldValues>[];
+    const fieldNames = Object.keys(this.fields) as FieldName<TFieldValues>[];
 
     fieldNames.forEach((fieldName) => {
       const prevError = this.getError(fieldName);

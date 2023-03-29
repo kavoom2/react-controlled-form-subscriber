@@ -49,7 +49,10 @@ const config = [
       peerDepsExternal(),
       resolve(),
       commonjs(),
-      typescript({ tsconfig: "./tsconfig.json", sourceMap: true }),
+      typescript({
+        tsconfig: "./tsconfig.json",
+        sourceMap: true,
+      }),
       terser(),
       ...(process.env.bundleAnalyzer === "TRUE" ? [bundleSize()] : []),
     ],
